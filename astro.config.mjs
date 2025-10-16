@@ -6,5 +6,6 @@ import tailwind from '@astrojs/tailwind';
 export default defineConfig({
   site: 'https://masatoman.github.io',
   base: '/blog',
+  output: 'static',
   integrations: [tailwind()]
 });
