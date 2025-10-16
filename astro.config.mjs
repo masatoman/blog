@@ -4,7 +4,7 @@ import tailwind from '@astrojs/tailwind';
 
 // https://astro.build/config
 export default defineConfig({
-  site: 'https://your-username.github.io',
-  base: '/blog-monakit',
+  site: 'https://masatoman.github.io',
+  base: '/blog',
   integrations: [tailwind()]
 });
