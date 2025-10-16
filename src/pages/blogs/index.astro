@@ -22,7 +22,7 @@ const sortedPosts = blogPosts.sort((a, b) =>
             📅 {post.data.pubDate instanceof Date ? post.data.pubDate.toLocaleDateString('ja-JP') : new Date(post.data.pubDate).toLocaleDateString('ja-JP')}
           </div>
           <h2 class="text-xl font-semibold mb-3 text-gray-900">
-            <a href={`/blog-monakit/blogs/${post.slug}`} class="hover:text-blue-600">
+            <a href={`/blog/blogs/${post.slug}`} class="hover:text-blue-600">
               {post.data.title}
             </a>
           </h2>
@@ -35,7 +35,7 @@ const sortedPosts = blogPosts.sort((a, b) =>
               </span>
             )}
             <a 
-              href={`/blog-monakit/blogs/${post.slug}`} 
+              href={`/blog/blogs/${post.slug}`} 
               class="text-blue-600 hover:text-blue-800 font-medium"
             >
               続きを読む →
