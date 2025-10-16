@@ -1,0 +1,1558 @@
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>投資判断特化型高配当株スクリーニング結果</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #1e293b;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 8px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.1rem;
+            color: #64748b;
+            margin-bottom: 5px;
+        }
+        
+        .main-table {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 8px;
+            padding: 0;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .table-header {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            padding: 20px 30px;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+        }
+        
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+        
+        .table thead th {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            color: #475569;
+            padding: 16px 12px;
+            text-align: center;
+            font-weight: 600;
+            border-bottom: 2px solid #cbd5e1;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        .table tbody tr {
+            transition: all 0.3s ease;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        
+        .table tbody tr:nth-child(even) {
+            background: #fafbfc;
+        }
+        
+        .table tbody tr:hover {
+            background: linear-gradient(135deg, #dbeafe 0%, #e0e7ff 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+        
+        .table td {
+            padding: 14px 12px;
+            text-align: center;
+            vertical-align: middle;
+            border: none;
+        }
+        
+        .text-success {
+            color: #059669 !important;
+            font-weight: 600;
+        }
+        
+        .text-warning {
+            color: #d97706 !important;
+            font-weight: 600;
+        }
+        
+        .text-danger {
+            color: #dc2626 !important;
+            font-weight: 600;
+        }
+        
+        .controls {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 8px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        
+        .control-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            cursor: pointer;
+            padding: 10px;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            border-radius: 6px;
+            transition: all 0.3s ease;
+        }
+        
+        .control-header:hover {
+            background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
+        }
+        
+        .control-header h3 {
+            color: #1e293b;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+        
+        .control-content {
+            display: none;
+        }
+        
+        .control-content.active {
+            display: block;
+        }
+        
+        .btn-filter {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin: 5px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-filter:hover {
+            background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+        }
+        
+        .btn-filter.active {
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+        }
+        
+        .column-filter {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .column-filter label {
+            display: flex;
+            align-items: center;
+            padding: 8px 12px;
+            background: #f8fafc;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+        
+        .column-filter label:hover {
+            background: #e2e8f0;
+        }
+        
+        .column-filter input[type="checkbox"] {
+            margin-right: 8px;
+        }
+        
+        .explanation-section {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 8px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        
+        .explanation-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            cursor: pointer;
+            padding: 10px;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            border-radius: 6px;
+            transition: all 0.3s ease;
+        }
+        
+        .explanation-header:hover {
+            background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
+        }
+        
+        .explanation-header h3 {
+            color: #1e293b;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+        
+        .explanation-content {
+            display: none;
+        }
+        
+        .explanation-content.active {
+            display: block;
+        }
+        
+        .explanation-card {
+            background: #f8fafc;
+            border-radius: 6px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-left: 4px solid #3b82f6;
+        }
+        
+        .explanation-card h6 {
+            color: #1e293b;
+            margin-bottom: 15px;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+        
+        .explanation-card p {
+            color: #64748b;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+        
+        .portfolio-form {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 8px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        
+        .portfolio-form h3 {
+            color: #1e293b;
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+        
+        .portfolio-header {
+            color: #1e293b;
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border-radius: 6px;
+            padding: 15px;
+            border-left: 4px solid #3b82f6;
+            transition: all 0.3s ease;
+        }
+        
+        .portfolio-header:hover {
+            background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+        }
+        
+        .form-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            gap: 15px;
+        }
+        
+        .form-group label {
+            color: #374151;
+            font-weight: 500;
+            min-width: 120px;
+        }
+        
+        .form-group input, .form-group select {
+            padding: 8px 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+        
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        
+        .btn-calculate {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-calculate:hover {
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+        }
+        
+        .portfolio-summary {
+            background: linear-gradient(135deg, #dbeafe 0%, #e0e7ff 100%);
+            border-radius: 6px;
+            padding: 15px;
+            margin-top: 15px;
+            display: none;
+        }
+        
+        .portfolio-summary.active {
+            display: block;
+        }
+        
+        .portfolio-summary h4 {
+            color: #1e293b;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+        
+        .portfolio-summary p {
+            color: #64748b;
+            margin-bottom: 5px;
+        }
+        
+        .industry-distribution {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border-radius: 6px;
+            padding: 15px;
+            margin-top: 15px;
+            display: none;
+        }
+        
+        .industry-distribution.active {
+            display: block;
+        }
+        
+        .industry-distribution h4 {
+            color: #1e293b;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+        
+        .industry-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            margin-bottom: 8px;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 4px;
+            border-left: 4px solid #3b82f6;
+        }
+        
+        .industry-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .industry-name {
+            color: #374151;
+            font-weight: 500;
+        }
+        
+        .industry-stats {
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+        
+        .industry-bar {
+            width: 100%;
+            height: 6px;
+            background: #e5e7eb;
+            border-radius: 3px;
+            margin-top: 5px;
+            overflow: hidden;
+        }
+        
+        .industry-bar-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .header {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .table {
+                font-size: 0.8rem;
+                min-width: 1200px;
+            }
+            
+            .table th, .table td {
+                padding: 10px 6px;
+            }
+            
+            .form-group {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .form-group label {
+                min-width: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💰 投資判断特化型高配当株スクリーニング結果</h1>
+            <p>生成日時: 2025年10月16日 14:50:23</p>
+            <p>総銘柄数: 16銘柄</p>
+        </div>
+        
+        
+        <div class="portfolio-form">
+            <h3 class="portfolio-header" onclick="togglePortfolio()" style="cursor: pointer;">
+                💰 分散投資計算ツール <span id="portfolioIcon">▼</span>
+            </h3>
+            <div class="portfolio-content" id="portfolioContent" style="display: none;">
+                <div class="form-group">
+                    <label for="totalAmount">投資総額（円）:</label>
+                    <input type="number" id="totalAmount" value="100000" min="10000" step="10000">
+                </div>
+                <div class="form-group">
+                    <label for="numStocks">投資銘柄数:</label>
+                    <input type="number" id="numStocks" value="10" min="1" max="20">
+                </div>
+                <div class="form-group">
+                    <label for="minScore">最低投資スコア:</label>
+                    <input type="number" id="minScore" value="70" min="0" max="100">
+                </div>
+                <div class="form-group">
+                    <label for="strategy">配分戦略:</label>
+                    <select id="strategy">
+                        <option value="equal">等配分</option>
+                        <option value="score_weighted" selected>投資スコア加重</option>
+                        <option value="dividend_weighted">配当利回り加重</option>
+                    </select>
+                </div>
+                <button id="calculateBtn" class="btn-calculate" onclick="calculatePortfolio()">📊 分散投資を計算</button>
+                <div class="portfolio-summary" id="portfolioSummary"></div>
+            </div>
+        </div>
+        
+        
+        <div class="main-table">
+            <div class="table-header">
+                📈 高配当株スクリーニング結果
+            </div>
+            <div class="table-container">
+                <table class="table" id="mainTable">
+                    <thead>
+                        <tr>
+                            <th>順位</th>
+                            <th>銘柄コード</th>
+                            <th>銘柄名</th>
+                            <th>現在値</th>
+                            <th>配当利回り</th>
+                            <th>配当性向</th>
+                            <th>1株配当</th>
+                            <th>配当カバレッジ</th>
+                            <th>EPS</th>
+                            <th>PER</th>
+                            <th>PBR</th>
+                            <th>PSR</th>
+                            <th>ROE</th>
+                            <th>営業利益率</th>
+                            <th>時価総額</th>
+                            <th>業界</th>
+                            <th>投資スコア</th>
+                            <th>投資推奨</th>
+                            <th class="portfolio-column" style="display: none;">購入株数</th>
+                            <th class="portfolio-column" style="display: none;">投資金額</th>
+                            <th class="portfolio-column" style="display: none;">年間配当収入</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        
+            <tr>
+                <td>1</td>
+                <td>3176</td>
+                <td>三洋貿易</td>
+                <td>1568円</td>
+                <td>3.64%</td>
+                <td>32.0%</td>
+                <td>58円</td>
+                <td>3.1</td>
+                <td>181円</td>
+                <td>8.7倍</td>
+                <td>0.9倍</td>
+                <td>0.3倍</td>
+                <td>11.4%</td>
+                <td>0.0%</td>
+                <td>45億円</td>
+                <td>Industrial Distribution</td>
+                <td>80点</td>
+                <td class="text-success">🟢 強力推奨</td>
+                <td class="portfolio-column" style="display: none;">-</td>
+                <td class="portfolio-column" style="display: none;">-</td>
+                <td class="portfolio-column" style="display: none;">-</td>
+            </tr>
+            
+            <tr>
+                <td>2</td>
+                <td>5121</td>
+                <td>藤倉コンポジット</td>
+                <td>1929円</td>
+                <td>3.68%</td>
+                <td>32.3%</td>
+                <td>66円</td>
+                <td>3.0</td>
+                <td>198円</td>
+                <td>9.7倍</td>
+                <td>1.1倍</td>
+                <td>0.9倍</td>
+                <td>11.3%</td>
+                <td>0.0%</td>
+                <td>37億円</td>
+                <td>Auto Parts</td>
+                <td>77点</td>
+                <td class="text-success">🟡 推奨</td>
+                <td class="portfolio-column" style="display: none;">-</td>
+                <td class="portfolio-column" style="display: none;">-</td>
+                <td class="portfolio-column" style="display: none;">-</td>
+            </tr>
+            
+            <tr>
+                <td>3</td>
+                <td>7134</td>
+                <td>アップガレージグループ</td>
+                <td>1120円</td>
+                <td>3.26%</td>
+                <td>30.5%</td>
+                <td>36円</td>
+                <td>2.7</td>
+                <td>99円</td>
+                <td>11.3倍</td>
+                <td>1.9倍</td>
+                <td>0.6倍</td>
+                <td>18.2%</td>
+                <td>0.0%</td>
+                <td>9億円</td>
+                <td>Auto & Truck Dealerships</td>
+                <td>75点</td>
+                <td class="text-success">🟡 推奨</td>
+                <td class="portfolio-column" style="display: none;">-</td>
+                <td class="portfolio-column" style="display: none;">-</td>
+                <td class="portfolio-column" style="display: none;">-</td>
+            </tr>
+            
+            <tr>
+                <td>4</td>
+                <td>6859</td>
+                <td>エスペック</td>
+                <td>3370円</td>
+                <td>3.41%</td>
+                <td>34.5%</td>
+                <td>115円</td>
+                <td>2.4</td>
+                <td>275円</td>
+                <td>12.3倍</td>
+                <td>1.3倍</td>
+                <td>1.1倍</td>
+                <td>11.0%</td>
+                <td>0.0%</td>
+                <td>75億円</td>
+                <td>Scientific & Technical Instruments</td>
+                <td>74点</td>
+                <td class="text-success">🟡 推奨</td>
+                <td class="portfolio-column" style="display: none;">-</td>
+                <td class="portfolio-column" style="display: none;">-</td>
+                <td class="portfolio-column" style="display: none;">-</td>
+            </tr>
+            
+            <tr>
+                <td>5</td>
+                <td>1835</td>
+                <td>東鉄工業</td>
+                <td>4245円</td>
+                <td>3.31%</td>
+                <td>40.2%</td>
+                <td>140円</td>
+                <td>2.4</td>
+                <td>336円</td>
+                <td>12.6倍</td>
+                <td>1.2倍</td>
+                <td>0.9倍</td>
+                <td>10.1%</td>
+                <td>0.0%</td>
+                <td>146億円</td>
+                <td>Engineering & Construction</td>
+                <td>74点</td>
+                <td class="text-success">🟡 推奨</td>
+                <td class="portfolio-column" style="display: none;">-</td>
+                <td class="portfolio-column" style="display: none;">-</td>
+                <td class="portfolio-column" style="display: none;">-</td>
+            </tr>
+            
+            <tr>
+                <td>6</td>
+                <td>6458</td>
+                <td>新晃工業</td>
+                <td>1280円</td>
+                <td>3.91%</td>
+                <td>46.4%</td>
+                <td>60円</td>
+                <td>1.8</td>
+                <td>108円</td>
+                <td>11.9倍</td>
+                <td>1.5倍</td>
+                <td>1.6倍</td>
+                <td>12.8%</td>
+                <td>0.0%</td>
+                <td>89億円</td>
+                <td>Building Products & Equipment</td>
+                <td>72点</td>
+                <td class="text-success">🟡 推奨</td>
+                <td class="portfolio-column" style="display: none;">-</td>
+                <td class="portfolio-column" style="display: none;">-</td>
+                <td class="portfolio-column" style="display: none;">-</td>
+            </tr>
+            
+            <tr>
+                <td>7</td>
+                <td>3150</td>
+                <td>グリムス</td>
+                <td>2339円</td>
+                <td>3.72%</td>
+                <td>40.1%</td>
+                <td>85円</td>
+                <td>2.3</td>
+                <td>197円</td>
+                <td>11.9倍</td>
+                <td>3.3倍</td>
+                <td>1.6倍</td>
+                <td>31.3%</td>
+                <td>0.0%</td>
+                <td>53億円</td>
+                <td>Utilities - Regulated Electric</td>
+                <td>72点</td>
+                <td class="text-success">🟡 推奨</td>
+                <td class="portfolio-column" style="display: none;">-</td>
+                <td class="portfolio-column" style="display: none;">-</td>
+                <td class="portfolio-column" style="display: none;">-</td>
+            </tr>
+            
+            <tr>
+                <td>8</td>
+                <td>4848</td>
+                <td>フルキャストＨＬＤＧ</td>
+                <td>1710円</td>
+                <td>3.68%</td>
+                <td>45.5%</td>
+                <td>63円</td>
+                <td>2.5</td>
+                <td>156円</td>
+                <td>11.0倍</td>
+                <td>2.1倍</td>
+                <td>0.9倍</td>
+                <td>20.3%</td>
+                <td>0.0%</td>
+                <td>60億円</td>
+                <td>Staffing & Employment Services</td>
+                <td>72点</td>
+                <td class="text-success">🟡 推奨</td>
+                <td class="portfolio-column" style="display: none;">-</td>
+                <td class="portfolio-column" style="display: none;">-</td>
+                <td class="portfolio-column" style="display: none;">-</td>
+            </tr>
+            
+            <tr>
+                <td>9</td>
+                <td>9743</td>
+                <td>丹青社</td>
+                <td>1356円</td>
+                <td>5.16%</td>
+                <td>49.2%</td>
+                <td>70円</td>
+                <td>1.2</td>
+                <td>82円</td>
+                <td>16.5倍</td>
+                <td>1.9倍</td>
+                <td>0.6倍</td>
+                <td>11.9%</td>
+                <td>0.0%</td>
+                <td>64億円</td>
+                <td>Specialty Business Services</td>
+                <td>71点</td>
+                <td class="text-success">🟡 推奨</td>
+                <td class="portfolio-column" style="display: none;">-</td>
+                <td class="portfolio-column" style="display: none;">-</td>
+                <td class="portfolio-column" style="display: none;">-</td>
+            </tr>
+            
+            <tr>
+                <td>10</td>
+                <td>9715</td>
+                <td>トランス・コスモス</td>
+                <td>3550円</td>
+                <td>3.11%</td>
+                <td>37.4%</td>
+                <td>108円</td>
+                <td>2.8</td>
+                <td>302円</td>
+                <td>11.7倍</td>
+                <td>1.1倍</td>
+                <td>0.4倍</td>
+                <td>10.0%</td>
+                <td>0.0%</td>
+                <td>133億円</td>
+                <td>Information Technology Services</td>
+                <td>69点</td>
+                <td class="text-success">🟡 推奨</td>
+                <td class="portfolio-column" style="display: none;">-</td>
+                <td class="portfolio-column" style="display: none;">-</td>
+                <td class="portfolio-column" style="display: none;">-</td>
+            </tr>
+            
+            <tr>
+                <td>11</td>
+                <td>1926</td>
+                <td>ライト工業</td>
+                <td>3260円</td>
+                <td>3.44%</td>
+                <td>46.7%</td>
+                <td>107円</td>
+                <td>2.0</td>
+                <td>214円</td>
+                <td>15.2倍</td>
+                <td>1.6倍</td>
+                <td>1.1倍</td>
+                <td>11.1%</td>
+                <td>0.0%</td>
+                <td>139億円</td>
+                <td>Engineering & Construction</td>
+                <td>66点</td>
+                <td class="text-success">🟡 推奨</td>
+                <td class="portfolio-column" style="display: none;">-</td>
+                <td class="portfolio-column" style="display: none;">-</td>
+                <td class="portfolio-column" style="display: none;">-</td>
+            </tr>
+            
+            <tr>
+                <td>12</td>
+                <td>4220</td>
+                <td>リケンテクノス</td>
+                <td>1232円</td>
+                <td>3.33%</td>
+                <td>29.8%</td>
+                <td>41円</td>
+                <td>3.4</td>
+                <td>138円</td>
+                <td>8.9倍</td>
+                <td>1.0倍</td>
+                <td>0.5倍</td>
+                <td>11.4%</td>
+                <td>0.0%</td>
+                <td>61億円</td>
+                <td>Chemicals</td>
+                <td>65点</td>
+                <td class="text-success">🟡 推奨</td>
+                <td class="portfolio-column" style="display: none;">-</td>
+                <td class="portfolio-column" style="display: none;">-</td>
+                <td class="portfolio-column" style="display: none;">-</td>
+            </tr>
+            
+            <tr>
+                <td>13</td>
+                <td>9416</td>
+                <td>ビジョン</td>
+                <td>1232円</td>
+                <td>3.65%</td>
+                <td>47.1%</td>
+                <td>50円</td>
+                <td>1.4</td>
+                <td>70円</td>
+                <td>17.7倍</td>
+                <td>3.4倍</td>
+                <td>1.6倍</td>
+                <td>21.2%</td>
+                <td>0.0%</td>
+                <td>61億円</td>
+                <td>Telecom Services</td>
+                <td>63点</td>
+                <td class="text-success">🟡 推奨</td>
+                <td class="portfolio-column" style="display: none;">-</td>
+                <td class="portfolio-column" style="display: none;">-</td>
+                <td class="portfolio-column" style="display: none;">-</td>
+            </tr>
+            
+            <tr>
+                <td>14</td>
+                <td>3433</td>
+                <td>トーカロ</td>
+                <td>2146円</td>
+                <td>3.59%</td>
+                <td>50.2%</td>
+                <td>72円</td>
+                <td>1.9</td>
+                <td>135円</td>
+                <td>15.8倍</td>
+                <td>2.1倍</td>
+                <td>2.3倍</td>
+                <td>13.9%</td>
+                <td>0.0%</td>
+                <td>129億円</td>
+                <td>Specialty Business Services</td>
+                <td>61点</td>
+                <td class="text-success">🟡 推奨</td>
+                <td class="portfolio-column" style="display: none;">-</td>
+                <td class="portfolio-column" style="display: none;">-</td>
+                <td class="portfolio-column" style="display: none;">-</td>
+            </tr>
+            
+            <tr>
+                <td>15</td>
+                <td>6436</td>
+                <td>アマノ</td>
+                <td>4041円</td>
+                <td>4.45%</td>
+                <td>70.0%</td>
+                <td>180円</td>
+                <td>1.4</td>
+                <td>250円</td>
+                <td>16.2倍</td>
+                <td>2.1倍</td>
+                <td>1.6倍</td>
+                <td>13.5%</td>
+                <td>0.0%</td>
+                <td>286億円</td>
+                <td>Scientific & Technical Instruments</td>
+                <td>53点</td>
+                <td class="text-warning">🟠 要検討</td>
+                <td class="portfolio-column" style="display: none;">-</td>
+                <td class="portfolio-column" style="display: none;">-</td>
+                <td class="portfolio-column" style="display: none;">-</td>
+            </tr>
+            
+            <tr>
+                <td>16</td>
+                <td>9757</td>
+                <td>船井総研ＨＬＤＧ</td>
+                <td>2497円</td>
+                <td>3.40%</td>
+                <td>80.0%</td>
+                <td>86円</td>
+                <td>1.5</td>
+                <td>128円</td>
+                <td>19.5倍</td>
+                <td>4.6倍</td>
+                <td>3.5倍</td>
+                <td>24.3%</td>
+                <td>0.0%</td>
+                <td>114億円</td>
+                <td>Consulting Services</td>
+                <td>53点</td>
+                <td class="text-warning">🟠 要検討</td>
+                <td class="portfolio-column" style="display: none;">-</td>
+                <td class="portfolio-column" style="display: none;">-</td>
+                <td class="portfolio-column" style="display: none;">-</td>
+            </tr>
+            
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <div class="control-header" onclick="toggleFilters()">
+                <h3>🔍 フィルター</h3>
+                <span id="filterIcon">▼</span>
+            </div>
+            <div class="control-content" id="filterContent">
+                <div style="margin-bottom: 15px;">
+                    
+        <button class="btn-filter" onclick="filterTable('all')">全て</button>
+        <button class="btn-filter" onclick="filterTable('strong')">強力推奨</button>
+        <button class="btn-filter" onclick="filterTable('recommended')">推奨</button>
+        <button class="btn-filter" onclick="filterTable('consider')">要検討</button>
+        <button class="btn-filter" onclick="filterTable('not_recommended')">非推奨</button>
+        
+                </div>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <div class="control-header" onclick="toggleColumnFilter()">
+                <h3>👁️ 表示項目の選択</h3>
+                <span id="columnFilterIcon">▼</span>
+            </div>
+            <div class="control-content" id="columnFilterContent">
+                <div class="column-filter">
+                    
+            <label>
+                <input type="checkbox" checked onchange="toggleColumn(0, this)">
+                順位
+            </label>
+            
+            <label>
+                <input type="checkbox" checked onchange="toggleColumn(1, this)">
+                銘柄コード
+            </label>
+            
+            <label>
+                <input type="checkbox" checked onchange="toggleColumn(2, this)">
+                銘柄名
+            </label>
+            
+            <label>
+                <input type="checkbox" checked onchange="toggleColumn(3, this)">
+                現在値
+            </label>
+            
+            <label>
+                <input type="checkbox" checked onchange="toggleColumn(4, this)">
+                配当利回り
+            </label>
+            
+            <label>
+                <input type="checkbox" checked onchange="toggleColumn(5, this)">
+                配当性向
+            </label>
+            
+            <label>
+                <input type="checkbox" checked onchange="toggleColumn(6, this)">
+                1株配当
+            </label>
+            
+            <label>
+                <input type="checkbox" checked onchange="toggleColumn(7, this)">
+                配当カバレッジ
+            </label>
+            
+            <label>
+                <input type="checkbox" checked onchange="toggleColumn(8, this)">
+                EPS
+            </label>
+            
+            <label>
+                <input type="checkbox" checked onchange="toggleColumn(9, this)">
+                PER
+            </label>
+            
+            <label>
+                <input type="checkbox" checked onchange="toggleColumn(10, this)">
+                PBR
+            </label>
+            
+            <label>
+                <input type="checkbox" checked onchange="toggleColumn(11, this)">
+                PSR
+            </label>
+            
+            <label>
+                <input type="checkbox" checked onchange="toggleColumn(12, this)">
+                ROE
+            </label>
+            
+            <label>
+                <input type="checkbox" checked onchange="toggleColumn(13, this)">
+                営業利益率
+            </label>
+            
+            <label>
+                <input type="checkbox" checked onchange="toggleColumn(14, this)">
+                時価総額
+            </label>
+            
+            <label>
+                <input type="checkbox" checked onchange="toggleColumn(15, this)">
+                業界
+            </label>
+            
+            <label>
+                <input type="checkbox" checked onchange="toggleColumn(16, this)">
+                投資スコア
+            </label>
+            
+            <label>
+                <input type="checkbox" checked onchange="toggleColumn(17, this)">
+                投資推奨
+            </label>
+            
+                </div>
+            </div>
+        </div>
+        
+        <div class="explanation-section">
+            <div class="explanation-header" onclick="toggleExplanation()">
+                <h3>📚 項目解説</h3>
+                <span id="explanationIcon">▼</span>
+            </div>
+            <div class="explanation-content" id="explanationContent">
+                
+        <div class="explanation-card">
+            <h6>💰 配当関連指標</h6>
+            <p><strong>配当利回り:</strong> 年間配当金 ÷ 現在株価 × 100。投資額に対する年間配当収入の割合。</p>
+            <p><strong>配当性向:</strong> 年間配当金 ÷ 1株当たり純利益 × 100。利益の何割を配当に回しているか。</p>
+            <p><strong>1株配当:</strong> 1株当たりの年間配当金額。</p>
+            <p><strong>配当カバレッジ:</strong> 純利益 ÷ 配当総額。配当の持続可能性を示す（2.0以上が理想）。</p>
+        </div>
+        
+        <div class="explanation-card">
+            <h6>📊 収益性指標</h6>
+            <p><strong>EPS (1株当たり純利益):</strong> 純利益 ÷ 発行済み株式数。1株当たりの利益。</p>
+            <p><strong>ROE (自己資本利益率):</strong> 純利益 ÷ 自己資本 × 100。自己資本の効率性（15%以上が理想）。</p>
+            <p><strong>営業利益率:</strong> 営業利益 ÷ 売上高 × 100。本業の収益性。</p>
+        </div>
+        
+        <div class="explanation-card">
+            <h6>💎 バリュエーション指標</h6>
+            <p><strong>PER (株価収益率):</strong> 現在株価 ÷ 1株当たり純利益。利益に対する株価の割安感（15倍以下が理想）。</p>
+            <p><strong>PBR (株価純資産倍率):</strong> 現在株価 ÷ 1株当たり純資産。資産に対する株価の割安感（1.5倍以下が理想）。</p>
+            <p><strong>PSR (株価売上高倍率):</strong> 時価総額 ÷ 売上高。売上に対する株価の割安感。</p>
+        </div>
+        
+        <div class="explanation-card">
+            <h6>🎯 投資評価指標</h6>
+            <p><strong>投資スコア:</strong> 配当利回り、財務健全性、成長性を総合評価した点数（100点満点）。</p>
+            <p><strong>投資適性:</strong> 投資スコアに基づく総合評価（強力推奨・推奨・要検討・非推奨）。</p>
+            <p><strong>投資推奨レベル:</strong> 投資適性の詳細レベル。投資判断の参考指標。</p>
+        </div>
+        
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // フィルター機能
+        function toggleFilters() {
+            const content = document.getElementById('filterContent');
+            const icon = document.getElementById('filterIcon');
+            if (content.style.display === 'none' || content.style.display === '') {
+                content.style.display = 'block';
+                icon.textContent = '▲';
+            } else {
+                content.style.display = 'none';
+                icon.textContent = '▼';
+            }
+        }
+        
+        function toggleColumnFilter() {
+            const content = document.getElementById('columnFilterContent');
+            const icon = document.getElementById('columnFilterIcon');
+            if (content.style.display === 'none' || content.style.display === '') {
+                content.style.display = 'block';
+                icon.textContent = '▲';
+            } else {
+                content.style.display = 'none';
+                icon.textContent = '▼';
+            }
+        }
+        
+        function toggleExplanation() {
+            const content = document.getElementById('explanationContent');
+            const icon = document.getElementById('explanationIcon');
+            if (content.style.display === 'none' || content.style.display === '') {
+                content.style.display = 'block';
+                icon.textContent = '▲';
+            } else {
+                content.style.display = 'none';
+                icon.textContent = '▼';
+            }
+        }
+        
+        function togglePortfolio() {
+            const content = document.getElementById('portfolioContent');
+            const icon = document.getElementById('portfolioIcon');
+            if (content.style.display === 'none' || content.style.display === '') {
+                content.style.display = 'block';
+                icon.textContent = '▲';
+            } else {
+                content.style.display = 'none';
+                icon.textContent = '▼';
+            }
+        }
+        
+        // 列表示切り替え
+        function toggleColumn(columnIndex, checkbox) {
+            const table = document.getElementById('mainTable');
+            const rows = table.getElementsByTagName('tr');
+            
+            for (let i = 0; i < rows.length; i++) {
+                const cell = rows[i].cells[columnIndex];
+                if (cell) {
+                    cell.style.display = checkbox.checked ? '' : 'none';
+                }
+            }
+        }
+        
+        // 分散投資計算機能
+        function calculatePortfolio() {
+            // ボタン連打防止
+            const calculateBtn = document.getElementById('calculateBtn');
+            if (calculateBtn.disabled) {
+                return;
+            }
+            calculateBtn.disabled = true;
+            calculateBtn.textContent = '計算中...';
+            
+            // 計算処理を非同期で実行
+            setTimeout(() => {
+                try {
+                    const totalAmount = parseInt(document.getElementById('totalAmount').value);
+                    const numStocks = parseInt(document.getElementById('numStocks').value);
+                    const minScore = parseInt(document.getElementById('minScore').value);
+                    const strategy = document.getElementById('strategy').value;
+            
+                    if (!totalAmount || !numStocks) {
+                        alert('投資金額と銘柄数を入力してください');
+                        return;
+                    }
+            
+                    // テーブルヘッダーから列インデックスを動的に取得
+                    const table = document.getElementById('mainTable');
+                    const headerRow = table.getElementsByTagName('tr')[0];
+                    const headers = Array.from(headerRow.cells).map(cell => cell.textContent.trim());
+            
+            // 列インデックスを取得
+            const getColumnIndex = (columnName) => {
+                const index = headers.indexOf(columnName);
+                if (index === -1) {
+                    console.warn(`列が見つかりません: ${columnName}`);
+                    return -1;
+                }
+                return index;
+            };
+            
+            const priceIndex = getColumnIndex('現在値');
+            const dividendYieldIndex = getColumnIndex('配当利回り');
+            const dividendPerShareIndex = getColumnIndex('1株配当');
+            const scoreIndex = getColumnIndex('投資スコア');
+            
+            if (priceIndex === -1 || dividendYieldIndex === -1 || dividendPerShareIndex === -1 || scoreIndex === -1) {
+                alert('必要な列が見つかりません。テーブル構造を確認してください。');
+                return;
+            }
+            
+            const rows = Array.from(table.getElementsByTagName('tr')).slice(1); // ヘッダーを除外
+            
+            let eligibleStocks = [];
+            rows.forEach((row, index) => {
+                const scoreCell = row.cells[scoreIndex];
+                if (scoreCell) {
+                    const scoreText = scoreCell.textContent.replace('点', ''); // "80点" -> "80"
+                    const score = parseFloat(scoreText);
+                    if (!isNaN(score) && score >= minScore) {
+                        const price = parseFloat(row.cells[priceIndex].textContent.replace(/[^0-9.-]/g, ''));
+                        const dividendYield = parseFloat(row.cells[dividendYieldIndex].textContent.replace('%', ''));
+                        const dividendPerShare = parseFloat(row.cells[dividendPerShareIndex].textContent.replace(/[^0-9.-]/g, ''));
+                        
+                        if (!isNaN(price) && !isNaN(dividendYield) && !isNaN(dividendPerShare)) {
+                            eligibleStocks.push({
+                                index: index,
+                                score: score,
+                                price: price,
+                                dividendYield: dividendYield,
+                                dividendPerShare: dividendPerShare,
+                                row: row
+                            });
+                        }
+                    }
+                }
+            });
+            
+            if (eligibleStocks.length === 0) {
+                alert('条件を満たす銘柄がありません');
+                return;
+            }
+            
+            // スコア順でソート
+            eligibleStocks.sort((a, b) => b.score - a.score);
+            
+            // 上位銘柄を選択
+            const selectedStocks = eligibleStocks.slice(0, Math.min(numStocks, eligibleStocks.length));
+            
+            // 配分計算
+            let weights = [];
+            if (strategy === 'equal') {
+                weights = new Array(selectedStocks.length).fill(1 / selectedStocks.length);
+            } else if (strategy === 'score_weighted') {
+                const totalScore = selectedStocks.reduce((sum, stock) => sum + stock.score, 0);
+                weights = selectedStocks.map(stock => stock.score / totalScore);
+            } else if (strategy === 'dividend_weighted') {
+                const totalDividendYield = selectedStocks.reduce((sum, stock) => sum + stock.dividendYield, 0);
+                weights = selectedStocks.map(stock => stock.dividendYield / totalDividendYield);
+            }
+            
+            // 各銘柄の投資金額と購入株数を計算（1株単位で購入可能）
+            let totalInvested = 0;
+            let totalDividend = 0;
+            
+            // ステップ1：基本的な等配分で初期計算
+            const targetAmountPerStock = totalAmount / selectedStocks.length;
+            
+            selectedStocks.forEach((stock, index) => {
+                let investmentAmount;
+                
+                if (strategy === 'equal') {
+                    investmentAmount = targetAmountPerStock;
+                } else if (strategy === 'score_weighted') {
+                    investmentAmount = totalAmount * weights[index];
+                } else if (strategy === 'dividend_weighted') {
+                    investmentAmount = totalAmount * weights[index];
+                } else {
+                    investmentAmount = targetAmountPerStock;
+                }
+                
+                // 1株単位で購入株数を計算
+                const shares = Math.floor(investmentAmount / stock.price);
+                const actualAmount = shares * stock.price;
+                const annualDividend = shares * stock.dividendPerShare;
+                
+                // 一時的に結果を保存
+                stock.shares = shares;
+                stock.actualAmount = actualAmount;
+                stock.annualDividend = annualDividend;
+                
+                totalInvested += actualAmount;
+                totalDividend += annualDividend;
+            });
+            
+            // ステップ2：余剰金を再配分
+            let remainingAmount = totalAmount - totalInvested;
+            
+            // 株価の安い順にソートして、余剰金で追加購入
+            const sortedStocks = [...selectedStocks].sort((a, b) => a.price - b.price);
+            
+            sortedStocks.forEach(stock => {
+                while (remainingAmount >= stock.price) {
+                    stock.shares += 1;
+                    stock.actualAmount += stock.price;
+                    stock.annualDividend += stock.dividendPerShare;
+                    remainingAmount -= stock.price;
+                }
+            });
+            
+            // 最終的な合計を再計算
+            totalInvested = selectedStocks.reduce((sum, stock) => sum + stock.actualAmount, 0);
+            totalDividend = selectedStocks.reduce((sum, stock) => sum + stock.annualDividend, 0);
+            
+            // 表に結果を表示
+            selectedStocks.forEach((stock) => {
+                // ポートフォリオ列のインデックスを取得（テーブルの最後の3列）
+                const totalColumns = stock.row.cells.length;
+                const sharesCellIndex = totalColumns - 3; // 購入株数
+                const amountCellIndex = totalColumns - 2; // 投資金額
+                const dividendCellIndex = totalColumns - 1; // 年間配当収入
+                
+                const sharesCell = stock.row.cells[sharesCellIndex];
+                const amountCell = stock.row.cells[amountCellIndex];
+                const dividendCell = stock.row.cells[dividendCellIndex];
+                
+                if (sharesCell) sharesCell.textContent = stock.shares.toLocaleString() + '株';
+                if (amountCell) amountCell.textContent = stock.actualAmount.toLocaleString() + '円';
+                if (dividendCell) dividendCell.textContent = stock.annualDividend.toLocaleString() + '円';
+            });
+            
+            // ポートフォリオ列を表示
+            const portfolioColumns = document.querySelectorAll('.portfolio-column');
+            portfolioColumns.forEach(col => col.style.display = '');
+            
+        // 業界名の翻訳マッピング
+        const industryTranslation = {
+            'Industrial Distribution': '産業流通',
+            'Auto Parts': '自動車部品',
+            'Auto & Truck Dealerships': '自動車販売',
+            'Scientific & Technical Instruments': '科学技術機器',
+            'Engineering & Construction': '建設・土木',
+            'Building Products & Equipment': '建材・設備',
+            'Utilities - Regulated Electric': '電力・ガス',
+            'Staffing & Employment Services': '人材派遣',
+            'Specialty Business Services': '専門サービス',
+            'Information Technology Services': 'ITサービス',
+            'Chemicals': '化学',
+            'Telecom Services': '通信サービス',
+            'Consulting Services': 'コンサルティング'
+        };
+        
+        // 業界名を日本語に翻訳する関数
+        function translateIndustry(englishName) {
+            return industryTranslation[englishName] || englishName;
+        }
+        
+        // 業界分布を計算
+        const industryStats = {};
+        selectedStocks.forEach((stock, index) => {
+            // 業界列のインデックスを動的に取得
+            const industryIndex = headers.indexOf('業界');
+            const industryCell = industryIndex !== -1 ? stock.row.cells[industryIndex] : null;
+            
+            if (industryCell) {
+                const industry = translateIndustry(industryCell.textContent);
+                if (!industryStats[industry]) {
+                    industryStats[industry] = {
+                        count: 0,
+                        totalAmount: 0,
+                        totalDividend: 0
+                    };
+                }
+                
+                // 実際の投資金額と配当を取得（ポートフォリオ列から）
+                const totalColumns = stock.row.cells.length;
+                const amountCellIndex = totalColumns - 2; // 投資金額
+                const dividendCellIndex = totalColumns - 1; // 年間配当収入
+                
+                const actualAmount = parseFloat(stock.row.cells[amountCellIndex].textContent.replace(/[^0-9.-]/g, '')) || 0;
+                const annualDividend = parseFloat(stock.row.cells[dividendCellIndex].textContent.replace(/[^0-9.-]/g, '')) || 0;
+                    
+                    if (actualAmount > 0) {
+                        industryStats[industry].count++;
+                        industryStats[industry].totalAmount += actualAmount;
+                        industryStats[industry].totalDividend += annualDividend;
+                    }
+                }
+            });
+            
+            // 業界分散度を計算（ハーフィンダール指数）
+            const totalIndustries = Object.keys(industryStats).length;
+            let hhi = 0;
+            let diversificationScore = 0;
+            
+            // totalInvestedが0の場合の処理
+            if (totalInvested > 0 && totalIndustries > 0) {
+                Object.values(industryStats).forEach(stats => {
+                    const share = stats.totalAmount / totalInvested;
+                    hhi += share * share;
+                });
+                diversificationScore = (1 - hhi) * 100;
+            }
+            
+            // 業界分布HTMLを生成
+            let industryHTML = `
+                <h4>🏢 業界分散状況</h4>
+                <div style="background: rgba(255, 255, 255, 0.8); padding: 10px; border-radius: 4px; margin-bottom: 15px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <strong>分散度スコア: ${diversificationScore.toFixed(1)}点</strong>
+                            <div style="font-size: 0.9rem; color: #64748b;">
+                                業界数: ${totalIndustries}業界 | ハーフィンダール指数: ${hhi.toFixed(3)}
+                            </div>
+                        </div>
+                        <div style="color: ${diversificationScore > 70 ? '#059669' : diversificationScore > 50 ? '#d97706' : '#dc2626'}; font-weight: 600;">
+                            ${diversificationScore > 70 ? '良好' : diversificationScore > 50 ? '普通' : '集中'}
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            const sortedIndustries = Object.entries(industryStats)
+                .sort((a, b) => b[1].totalAmount - a[1].totalAmount);
+            
+            sortedIndustries.forEach(([industry, stats]) => {
+                const percentage = totalInvested > 0 ? (stats.totalAmount / totalInvested * 100).toFixed(1) : '0.0';
+                industryHTML += `
+                    <div class="industry-item">
+                        <div>
+                            <div class="industry-name">${industry}</div>
+                            <div class="industry-stats">
+                                ${stats.count}銘柄 | ${stats.totalAmount.toLocaleString()}円 | ${stats.totalDividend.toLocaleString()}円/年
+                            </div>
+                            <div class="industry-bar">
+                                <div class="industry-bar-fill" style="width: ${percentage}%"></div>
+                            </div>
+                        </div>
+                        <div style="color: #3b82f6; font-weight: 600; font-size: 1.1rem;">
+                            ${percentage}%
+                        </div>
+                    </div>
+                `;
+            });
+            
+            // サマリー表示
+            const summary = document.getElementById('portfolioSummary');
+            summary.innerHTML = `
+                <h4>📊 ポートフォリオ配分結果</h4>
+                <p>投資総額: ` + totalAmount.toLocaleString() + `円</p>
+                <p>実際投資額: ` + totalInvested.toLocaleString() + `円</p>
+                <p>未投資額: ` + (totalAmount - totalInvested).toLocaleString() + `円</p>
+                <p>年間配当収入: ` + totalDividend.toLocaleString() + `円</p>
+                <p>ポートフォリオ利回り: ` + (totalInvested > 0 ? (totalDividend / totalInvested * 100).toFixed(2) : '0.00') + `%</p>
+            `;
+            summary.classList.add('active');
+            
+            // 業界分布表示
+            const industryDistribution = document.getElementById('industryDistribution');
+            if (industryDistribution) {
+                industryDistribution.innerHTML = industryHTML;
+                industryDistribution.classList.add('active');
+            } else {
+                // 業界分布要素が存在しない場合は作成
+                const industryDiv = document.createElement('div');
+                industryDiv.id = 'industryDistribution';
+                industryDiv.className = 'industry-distribution';
+                industryDiv.innerHTML = industryHTML;
+                industryDiv.classList.add('active');
+                summary.parentNode.insertBefore(industryDiv, summary.nextSibling);
+                }
+                
+                // 購入株数・投資金額と銘柄名・コードの表を生成
+                let stockTableHTML = `
+                    <h4>📋 購入銘柄一覧</h4>
+                    <div style="background: rgba(255, 255, 255, 0.8); padding: 10px; border-radius: 4px; margin-bottom: 15px;">
+                        <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
+                            <thead>
+                                <tr style="background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); color: white;">
+                                    <th style="padding: 8px; text-align: left; border: 1px solid #ddd;">銘柄コード</th>
+                                    <th style="padding: 8px; text-align: left; border: 1px solid #ddd;">銘柄名（セクター）</th>
+                                    <th style="padding: 8px; text-align: right; border: 1px solid #ddd;">購入株数</th>
+                                    <th style="padding: 8px; text-align: right; border: 1px solid #ddd;">投資金額</th>
+                                    <th style="padding: 8px; text-align: right; border: 1px solid #ddd;">年間配当</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                `;
+                
+                selectedStocks.forEach((stock, index) => {
+                    const totalColumns = stock.row.cells.length;
+                    const sharesCellIndex = totalColumns - 3; // 購入株数
+                    const amountCellIndex = totalColumns - 2; // 投資金額
+                    const dividendCellIndex = totalColumns - 1; // 年間配当収入
+                    
+                    const shares = stock.row.cells[sharesCellIndex].textContent;
+                    const amount = stock.row.cells[amountCellIndex].textContent;
+                    const dividend = stock.row.cells[dividendCellIndex].textContent;
+                    
+                    // 銘柄コード、銘柄名、業界を取得
+                    const codeIndex = headers.indexOf('銘柄コード');
+                    const nameIndex = headers.indexOf('銘柄名');
+                    const industryIndex = headers.indexOf('業界');
+                    
+                    const stockCode = codeIndex !== -1 ? stock.row.cells[codeIndex].textContent : '';
+                    const stockName = nameIndex !== -1 ? stock.row.cells[nameIndex].textContent : '';
+                    const industry = industryIndex !== -1 ? translateIndustry(stock.row.cells[industryIndex].textContent) : '';
+                    
+                    stockTableHTML += `
+                        <tr style="background: ` + (index % 2 === 0 ? 'rgba(248, 250, 252, 0.8)' : 'rgba(255, 255, 255, 0.9)') + `;">
+                            <td style="padding: 8px; border: 1px solid #ddd; font-weight: 600; color: #3b82f6;">` + stockCode + `</td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">
+                                <div style="font-weight: 500;">` + stockName + `</div>
+                                <div style="font-size: 0.8rem; color: #64748b; margin-top: 2px;">` + industry + `</div>
+                            </td>
+                            <td style="padding: 8px; border: 1px solid #ddd; text-align: right;">` + shares + `</td>
+                            <td style="padding: 8px; border: 1px solid #ddd; text-align: right;">` + amount + `</td>
+                            <td style="padding: 8px; border: 1px solid #ddd; text-align: right;">` + dividend + `</td>
+                        </tr>
+                    `;
+                });
+                
+                stockTableHTML += `
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+                
+                // 銘柄表表示
+                const stockTableDiv = document.getElementById('stockTable');
+                if (stockTableDiv) {
+                    stockTableDiv.innerHTML = stockTableHTML;
+                    stockTableDiv.classList.add('active');
+                } else {
+                    // 銘柄表要素が存在しない場合は作成
+                    const stockDiv = document.createElement('div');
+                    stockDiv.id = 'stockTable';
+                    stockDiv.className = 'industry-distribution';
+                    stockDiv.innerHTML = stockTableHTML;
+                    stockDiv.classList.add('active');
+                    summary.parentNode.insertBefore(stockDiv, summary.nextSibling);
+                }
+                } catch (error) {
+                    console.error('計算エラー:', error);
+                    alert('計算中にエラーが発生しました。');
+                } finally {
+                    // ボタンを再有効化
+                    calculateBtn.disabled = false;
+                    calculateBtn.textContent = '📊 分散投資を計算';
+                }
+            }, 100); // 100ms後に実行
+        }
+        
+        // 初期化
+        document.addEventListener('DOMContentLoaded', function() {
+            // デフォルトでフィルターと列選択を閉じる
+            document.getElementById('filterContent').style.display = 'none';
+            document.getElementById('columnFilterContent').style.display = 'none';
+            document.getElementById('explanationContent').style.display = 'none';
+        });
+    </script>
+</body>
+</html>
+        

@@ -1,11 +1,75 @@
 ---
-import Welcome from '../components/Welcome.astro';
 import Layout from '../layouts/Layout.astro';
-
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
 ---
 
-<Layout>
-	<Welcome />
+<Layout title="ホーム - 雑記ブログ">
+  <!-- ヒーローセクション -->
+  <section class="bg-gray-50 py-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center">
+        <h1 class="text-4xl font-bold text-gray-900 mb-4">
+          雑記ブログ
+        </h1>
+        <p class="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
+          ゲーム、開発、投資、雑記について書いています。<br>
+          日々の学びや気づきを共有します。
+        </p>
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+          <a href="/blog-monakit/blogs" class="btn-primary">
+            ブログを読む
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- 最新記事セクション -->
+  <section class="py-16 bg-gray-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-12">
+        <h2 class="text-3xl font-bold text-gray-900 mb-4">最新記事</h2>
+        <p class="text-lg text-gray-600">最近書いた記事をチェック</p>
+      </div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- 記事カードの例 -->
+        <div class="card">
+          <div class="text-sm text-gray-500 mb-2">2025-10-16</div>
+          <h3 class="text-xl font-semibold mb-3 text-gray-900">分散投資機能の完成</h3>
+          <p class="text-gray-600 mb-4">高配当株スクリーニングに分散投資計算ツールを追加しました。投資総額と銘柄数を入力するだけで、最適な投資配分を計算できます。</p>
+          <div class="flex items-center justify-between">
+            <span class="category-badge category-investment">投資</span>
+            <a href="/blog-monakit/blogs/diversified-investment-feature-complete" class="text-blue-600 hover:text-blue-800 font-medium">
+              続きを読む →
+            </a>
+          </div>
+        </div>
+        
+        <div class="card">
+          <div class="text-sm text-gray-500 mb-2">2025-10-15</div>
+          <h3 class="text-xl font-semibold mb-3 text-gray-900">ネットネット株スクリーニング結果</h3>
+          <p class="text-gray-600 mb-4">バリュー投資の父ベンジャミン・グレアムが提唱した投資手法の分析結果をお届けします。</p>
+          <div class="flex items-center justify-between">
+            <span class="category-badge category-investment">投資</span>
+            <a href="/blog-monakit/investment-results" class="text-blue-600 hover:text-blue-800 font-medium">
+              結果を見る →
+            </a>
+          </div>
+        </div>
+        
+        <div class="card">
+          <div class="text-sm text-gray-500 mb-2">2025-10-10</div>
+          <h3 class="text-xl font-semibold mb-3 text-gray-900">高配当株分析結果</h3>
+          <p class="text-gray-600 mb-4">安定した配当収入を期待できる高配当株の分析結果を公開します。投資判断に必要な指標を総合的に評価しています。</p>
+          <div class="flex items-center justify-between">
+            <span class="category-badge category-investment">投資</span>
+            <a href="/blog-monakit/investment-results" class="text-blue-600 hover:text-blue-800 font-medium">
+              結果を見る →
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 </Layout>

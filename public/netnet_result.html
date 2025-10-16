@@ -1,0 +1,517 @@
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ネットネット株スクリーニング結果</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', Meiryo, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+        
+        .summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            padding: 30px;
+            background: #f8f9fa;
+        }
+        
+        .summary-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        
+        .summary-card h3 {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+        
+        .summary-card p {
+            font-size: 28px;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196F3;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .info-box:hover {
+            background: #bbdefb;
+        }
+        
+        .info-box h3 {
+            color: #1976D2;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .info-box h3::after {
+            content: '▼';
+            font-size: 12px;
+            transition: transform 0.3s ease;
+        }
+        
+        .info-box.collapsed h3::after {
+            transform: rotate(-90deg);
+        }
+        
+        .info-box ul {
+            list-style-position: inside;
+            color: #555;
+            max-height: 500px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .info-box.collapsed ul {
+            max-height: 0;
+            padding-top: 0;
+            padding-bottom: 0;
+            margin: 0;
+        }
+        
+        .info-box div {
+            max-height: 1000px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .info-box.collapsed div {
+            max-height: 0;
+            padding-top: 0;
+            padding-bottom: 0;
+            margin: 0;
+        }
+        
+        .info-box p {
+            margin: 5px 0;
+        }
+        
+        .info-box h4 {
+            margin: 10px 0 5px 0;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+            margin-top: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        table {
+            width: 100%;
+            min-width: 1200px;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        
+        thead {
+            background: #667eea;
+            color: white;
+            position: sticky;
+            top: 0;
+        }
+        
+        th {
+            padding: 15px 10px;
+            text-align: left;
+            font-weight: 600;
+            cursor: pointer;
+            user-select: none;
+            white-space: nowrap;
+        }
+        
+        th:hover {
+            background: #5568d3;
+        }
+        
+        th::after {
+            content: ' ↕';
+            opacity: 0.5;
+            font-size: 12px;
+        }
+        
+        td {
+            padding: 12px 10px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        tbody tr:hover {
+            background: #f5f5f5;
+        }
+        
+        .rank-super {
+            background: #ffebee !important;
+            font-weight: bold;
+        }
+        
+        .rank-good {
+            background: #fff9e6 !important;
+        }
+        
+        .rank-normal {
+            background: #e8f5e9 !important;
+        }
+        
+        .rank-out {
+            background: #fafafa !important;
+            color: #999;
+        }
+        
+        .number-right {
+            text-align: right;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .badge-super {
+            background: #f44336;
+            color: white;
+        }
+        
+        .badge-good {
+            background: #ff9800;
+            color: white;
+        }
+        
+        .badge-normal {
+            background: #4caf50;
+            color: white;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #999;
+            font-size: 14px;
+            background: #f8f9fa;
+        }
+        
+        .footer a:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.3) !important;
+        }
+        
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            
+            .container {
+                box-shadow: none;
+            }
+            
+            th::after {
+                content: '';
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📈 ネットネット株スクリーニング結果</h1>
+            <p>生成日時: 2025年10月15日 11:02:21</p>
+        </div>
+        
+        <div class="summary">
+            
+            <div class="summary-card">
+                <h3>分析銘柄数</h3>
+                <p>17</p>
+            </div>
+            <div class="summary-card">
+                <h3>ネットネット株候補</h3>
+                <p style="color: #f44336;">10</p>
+            </div>
+            <div class="summary-card">
+                <h3>超割安銘柄</h3>
+                <p style="color: #ff5722;">2</p>
+            </div>
+            <div class="summary-card">
+                <h3>成功率</h3>
+                <p style="color: #4caf50;">62.5%</p>
+            </div>
+        
+        </div>
+        
+        <div class="content">
+            <div class="info-box collapsed" id="investmentTips">
+                <h3>💡 投資のヒント</h3>
+                <ul>
+                    <li><strong>【最優先】</strong> おすすめ度⭐⭐⭐の銘柄から検討</li>
+                    <li><strong>【重要】</strong> 営業利益率・ROEがプラスの銘柄は事業が安定</li>
+                    <li><strong>【注意】</strong> 営業利益率マイナスは事業不振のサイン</li>
+                    <li><strong>【注意】</strong> ROEマイナスは収益力に問題あり</li>
+                    <li><strong>【安全性】</strong> 負債比率が低く流動比率が高い銘柄を選ぶ</li>
+                    <li><strong>【資金繰り】</strong> 営業CFがプラスな銘柄は健全</li>
+                    <li><strong>【分散】</strong> 業種を分散させる（同じ業種に集中しない）</li>
+                    <li><strong>【割安度】</strong> NCAV比率2.0以上は超割安</li>
+                    <li><strong>【配当】</strong> 配当利回りがある銘柄は待っている間のインカムゲイン</li>
+                    <li><strong>【流動性】</strong> 時価総額が小さすぎる銘柄は流動性リスクに注意</li>
+                </ul>
+            </div>
+            
+            <div class="info-box collapsed" id="indicatorGuide">
+                <h3>📊 指標の見方</h3>
+                <div style="margin-top: 10px;">
+                    <h4 style="color: #1976D2; margin-top: 15px;">🎯 おすすめ度</h4>
+                    <p><strong>⭐⭐⭐ 高</strong>: 財務健全で成長性あり。最優先で検討すべき銘柄</p>
+                    <p><strong>⭐⭐ 中</strong>: 検討価値あり。一部懸念はあるが投資候補になる</p>
+                    <p><strong>⭐ 低</strong>: 慎重に検討。事業不振や財務リスクあり</p>
+                    
+                    <h4 style="color: #1976D2; margin-top: 15px;">💰 NCAV比率（株価に対する割安度）</h4>
+                    <p><strong>高い（2.0倍以上）</strong>: 超割安。株価がNCAVの半分以下</p>
+                    <p><strong>低い（1.5倍未満）</strong>: やや割安。上昇余地は限定的</p>
+                    
+                    <h4 style="color: #1976D2; margin-top: 15px;">📈 営業利益率（事業の収益力）</h4>
+                    <p><strong>高い（5%以上）</strong>: 優良企業。安定した収益力</p>
+                    <p><strong>プラス（0%超）</strong>: 黒字経営。事業は健全</p>
+                    <p><strong>マイナス</strong>: 赤字経営。事業不振のリスク</p>
+                    
+                    <h4 style="color: #1976D2; margin-top: 15px;">💎 ROE（株主資本利益率）</h4>
+                    <p><strong>高い（10%以上）</strong>: 効率的な経営。株主還元力が高い</p>
+                    <p><strong>プラス（0%超）</strong>: 利益を出している</p>
+                    <p><strong>マイナス</strong>: 損失を出している。収益力に懸念</p>
+                    
+                    <h4 style="color: #1976D2; margin-top: 15px;">🛡️ 負債比率（財務の安全性）</h4>
+                    <p><strong>低い（30%未満）</strong>: 非常に安全。倒産リスク低</p>
+                    <p><strong>普通（30-60%）</strong>: 標準的な水準</p>
+                    <p><strong>高い（60%超）</strong>: 財務リスクあり。注意が必要</p>
+                    
+                    <h4 style="color: #1976D2; margin-top: 15px;">💧 流動比率（短期支払能力）</h4>
+                    <p><strong>高い（200%以上）</strong>: 非常に安全。資金繰り良好</p>
+                    <p><strong>普通（150-200%）</strong>: 安全な水準</p>
+                    <p><strong>低い（100%未満）</strong>: 短期的な資金繰りに懸念</p>
+                    
+                    <h4 style="color: #1976D2; margin-top: 15px;">💸 営業CF（実際の資金繰り）</h4>
+                    <p><strong>プラス</strong>: 本業で現金を生み出している。健全</p>
+                    <p><strong>マイナス</strong>: 現金が流出している。資金繰りに懸念</p>
+                    
+                    <h4 style="color: #1976D2; margin-top: 15px;">🏢 時価総額</h4>
+                    <p><strong>大きい（100億円以上）</strong>: 流動性が高い。売買しやすい</p>
+                    <p><strong>小さい（50億円未満）</strong>: 流動性リスクあり。売買が難しい場合も</p>
+                    
+                    <h4 style="color: #1976D2; margin-top: 15px;">📊 PBR（株価純資産倍率）</h4>
+                    <p><strong>低い（0.5倍未満）</strong>: 割安。資産価値より株価が低い</p>
+                    <p><strong>普通（0.5-1.0倍）</strong>: 標準的な水準</p>
+                    
+                    <h4 style="color: #1976D2; margin-top: 15px;">💰 配当利回り</h4>
+                    <p><strong>高い（3%以上）</strong>: 保有中のインカムゲインが期待できる</p>
+                    <p><strong>低い/なし</strong>: 配当は期待できないが、株価上昇を狙う</p>
+                </div>
+            </div>
+            
+            <div class="info-box collapsed" id="nextSteps">
+                <h3>🔍 「検討価値あり」の次のステップ</h3>
+                <div style="margin-top: 10px;">
+                    <h4 style="color: #1976D2;">1. 詳細な企業分析（必須）</h4>
+                    <ul>
+                        <li><strong>決算短信を確認</strong>: 会社のIRページで最新の決算資料をチェック</li>
+                        <li><strong>業績トレンド</strong>: 過去3-5年の売上・利益の推移を確認</li>
+                        <li><strong>事業内容</strong>: 何で稼いでいる会社か？将来性はあるか？</li>
+                    </ul>
+                    
+                    <h4 style="color: #1976D2; margin-top: 15px;">2. チャート分析</h4>
+                    <ul>
+                        <li><strong>株価トレンド</strong>: Yahoo!ファイナンスなどで長期チャートを確認</li>
+                        <li><strong>下落理由</strong>: なぜ割安になったのか？一時的な要因か構造的な問題か？</li>
+                        <li><strong>出来高</strong>: 売買が成立しているか？流動性は十分か？</li>
+                    </ul>
+                    
+                    <h4 style="color: #1976D2; margin-top: 15px;">3. リスク要因の確認</h4>
+                    <ul>
+                        <li><strong>業界動向</strong>: 業界全体が衰退していないか？</li>
+                        <li><strong>競合状況</strong>: 競争力を失っていないか？</li>
+                        <li><strong>経営陣</strong>: 経営者の評判や方針は？</li>
+                    </ul>
+                    
+                    <h4 style="color: #1976D2; margin-top: 15px;">4. 分散投資の実践</h4>
+                    <ul>
+                        <li><strong>複数銘柄に分散</strong>: 1銘柄に集中せず、5-10銘柄に分散</li>
+                        <li><strong>業種分散</strong>: 同じ業種に偏らないようにする</li>
+                        <li><strong>段階的購入</strong>: 一度に全額投資せず、様子を見ながら追加</li>
+                    </ul>
+                    
+                    <h4 style="color: #1976D2; margin-top: 15px;">5. エントリー・エグジット戦略</h4>
+                    <ul>
+                        <li><strong>購入タイミング</strong>: さらに下落したら追加購入も検討</li>
+                        <li><strong>目標株価</strong>: NCAV以上（理想は1.5-2倍）で売却を検討</li>
+                        <li><strong>損切りライン</strong>: 想定外の悪材料が出たら撤退も視野に</li>
+                    </ul>
+                    
+                    <h4 style="color: #1976D2; margin-top: 15px;">⚠️ 重要な注意事項</h4>
+                    <p style="color: #d32f2f; font-weight: bold;">
+                        ネットネット株投資は「バリュートラップ（価値の罠）」のリスクがあります。
+                        割安だからといって必ず上がるわけではありません。
+                        企業が清算されない限り、株価が永遠に低迷する可能性もあります。
+                        必ず自分で調査し、納得した上で投資してください。
+                    </p>
+                </div>
+            </div>
+            
+            <div class="table-container">
+                <table id="resultTable">
+                <thead>
+                    <tr>
+                        <th>銘柄コード</th><th>株価</th><th>NCAV/株</th><th>NCAV比率</th><th>割安度</th><th>判定</th><th>業種</th><th>時価総額</th><th>PBR</th><th>配当利回り</th><th>売上高</th><th>営業利益</th><th>営業CF</th><th>負債比率</th><th>流動比率</th><th>自己資本比率</th><th>営業利益率</th><th>ROE</th><th>おすすめ度</th><th>スコア</th><th>評価理由</th><th>注意点</th><th>総評</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="rank-super"><td class="">6899.T</td><td class="number-right">2,025.00</td><td class="number-right">5,619.33</td><td class="number-right">2.77</td><td class="">⭐ 超割安</td><td class="">✅ ネットネット株候補</td><td class="">テクノロジー</td><td class="number-right">63.3億円</td><td class="number-right">0.27</td><td class="number-right">5.43%</td><td class="number-right">654.4億円</td><td class="number-right">15.2億円</td><td class="number-right">56.0億円</td><td class="number-right">29.3%</td><td class="number-right">245.9%</td><td class="number-right">53.3%</td><td class="number-right">2.3%</td><td class="number-right">6.2%</td><td class="">⭐⭐⭐ 高</td><td class="">11</td><td class="">営業利益率がプラス / ROEが良好（5%超） / 負債比率が低い / 流動比率が高い / 営業CFがプラス（健全な資金繰り） / 超割安（NCAV比率2.5倍超） / 配当利回りが高い</td><td class="">-</td><td class="">財務健全で成長性あり</td></tr><tr class="rank-good"><td class="">7219.T</td><td class="number-right">2,131.00</td><td class="number-right">3,411.85</td><td class="number-right">1.60</td><td class="">💎 割安</td><td class="">✅ ネットネット株候補</td><td class="">一般消費財</td><td class="number-right">30.2億円</td><td class="number-right">0.28</td><td class="number-right">6.10%</td><td class="number-right">90.0億円</td><td class="number-right">4.2億円</td><td class="number-right">3.8億円</td><td class="number-right">5.7%</td><td class="number-right">331.5%</td><td class="number-right">77.3%</td><td class="number-right">4.6%</td><td class="number-right">4.1%</td><td class="">⭐⭐⭐ 高</td><td class="">10</td><td class="">営業利益率がプラス / ROEがプラス / 負債比率が非常に低い / 流動比率が非常に高い / 営業CFがプラス（健全な資金繰り） / 配当利回りが高い</td><td class="">-</td><td class="">財務健全で成長性あり</td></tr><tr class="rank-good"><td class="">8144.T</td><td class="number-right">1,216.00</td><td class="number-right">2,037.21</td><td class="number-right">1.68</td><td class="">💎 割安</td><td class="">✅ ネットネット株候補</td><td class="">テクノロジー</td><td class="number-right">75.8億円</td><td class="number-right">0.29</td><td class="number-right">3.31%</td><td class="number-right">543.3億円</td><td class="number-right">1.1億円</td><td class="number-right">11.3億円</td><td class="number-right">3.8%</td><td class="number-right">285.9%</td><td class="number-right">73.9%</td><td class="number-right">0.2%</td><td class="number-right">0.4%</td><td class="">⭐⭐⭐ 高</td><td class="">10</td><td class="">営業利益率がプラス / ROEがプラス / 負債比率が非常に低い / 流動比率が非常に高い / 営業CFがプラス（健全な資金繰り） / 配当利回りが高い</td><td class="">-</td><td class="">財務健全で成長性あり</td></tr><tr class="rank-good"><td class="">6470.T</td><td class="number-right">690.00</td><td class="number-right">1,360.74</td><td class="number-right">1.97</td><td class="">💎 割安</td><td class="">✅ ネットネット株候補</td><td class="">一般消費財</td><td class="number-right">195.3億円</td><td class="number-right">0.29</td><td class="number-right">2.93%</td><td class="number-right">1,127.9億円</td><td class="number-right">6.2億円</td><td class="number-right">62.4億円</td><td class="number-right">21.3%</td><td class="number-right">251.8%</td><td class="number-right">56.1%</td><td class="number-right">0.5%</td><td class="number-right">0.9%</td><td class="">⭐⭐ 中</td><td class="">9</td><td class="">営業利益率がプラス / ROEがプラス / 負債比率が低い / 流動比率が非常に高い / 営業CFがプラス（健全な資金繰り） / 配当利回りが高い</td><td class="">-</td><td class="">検討価値あり</td></tr><tr class="rank-super"><td class="">6513.T</td><td class="number-right">1,048.00</td><td class="number-right">3,139.91</td><td class="number-right">3.00</td><td class="">⭐ 超割安</td><td class="">✅ ネットネット株候補</td><td class="">テクノロジー</td><td class="number-right">55.1億円</td><td class="number-right">0.24</td><td class="number-right">2.86%</td><td class="number-right">288.0億円</td><td class="number-right">-2.5億円</td><td class="number-right">-4.0億円</td><td class="number-right">5.7%</td><td class="number-right">288.4%</td><td class="number-right">52.5%</td><td class="number-right">-0.9%</td><td class="number-right">-1.1%</td><td class="">⭐⭐ 中</td><td class="">8</td><td class="">負債比率が非常に低い / 流動比率が非常に高い / 超割安（NCAV比率2.5倍超） / 配当利回りが高い</td><td class="">営業利益率が微損 / ROEがマイナス（収益力に懸念） / 営業CFがマイナス</td><td class="">検討価値あり</td></tr><tr class="rank-good"><td class="">7702.T</td><td class="number-right">434.00</td><td class="number-right">822.08</td><td class="number-right">1.89</td><td class="">💎 割安</td><td class="">✅ ネットネット株候補</td><td class="">ヘルスケア</td><td class="number-right">106.3億円</td><td class="number-right">0.27</td><td class="number-right">3.95%</td><td class="number-right">697.5億円</td><td class="number-right">8.7億円</td><td class="number-right">14.7億円</td><td class="number-right">30.1%</td><td class="number-right">178.6%</td><td class="number-right">50.1%</td><td class="number-right">1.3%</td><td class="number-right">2.1%</td><td class="">⭐⭐ 中</td><td class="">8</td><td class="">営業利益率がプラス / ROEがプラス / 負債比率が低い / 流動比率が高い / 営業CFがプラス（健全な資金繰り） / 配当利回りが高い</td><td class="">-</td><td class="">検討価値あり</td></tr><tr class="rank-good"><td class="">5928.T</td><td class="number-right">260.00</td><td class="number-right">407.23</td><td class="number-right">1.57</td><td class="">💎 割安</td><td class="">✅ ネットネット株候補</td><td class="">資本財</td><td class="number-right">27.2億円</td><td class="number-right">0.39</td><td class="number-right">3.11%</td><td class="number-right">83.0億円</td><td class="number-right">-2.1億円</td><td class="number-right">0.5億円</td><td class="number-right">-</td><td class="number-right">474.9%</td><td class="number-right">81.8%</td><td class="number-right">-2.6%</td><td class="number-right">-2.3%</td><td class="">⭐⭐ 中</td><td class="">6</td><td class="">流動比率が非常に高い / 営業CFがプラス（健全な資金繰り） / 配当利回りが高い</td><td class="">営業利益率が微損 / ROEがマイナス（収益力に懸念）</td><td class="">検討価値あり</td></tr><tr class="rank-good"><td class="">4234.T</td><td class="number-right">570.00</td><td class="number-right">959.60</td><td class="number-right">1.68</td><td class="">💎 割安</td><td class="">✅ ネットネット株候補</td><td class="">素材</td><td class="number-right">54.9億円</td><td class="number-right">0.27</td><td class="number-right">3.17%</td><td class="number-right">294.3億円</td><td class="number-right">-0.3億円</td><td class="number-right">-3.2億円</td><td class="number-right">16.1%</td><td class="number-right">169.4%</td><td class="number-right">53.2%</td><td class="number-right">-0.1%</td><td class="number-right">-0.2%</td><td class="">⭐ 低</td><td class="">5</td><td class="">負債比率が非常に低い / 流動比率が高い / 配当利回りが高い</td><td class="">営業利益率が微損 / ROEがマイナス（収益力に懸念） / 営業CFがマイナス</td><td class="">慎重に検討</td></tr><tr class="rank-good"><td class="">7983.T</td><td class="number-right">1,222.00</td><td class="number-right">2,268.45</td><td class="number-right">1.86</td><td class="">💎 割安</td><td class="">✅ ネットネット株候補</td><td class="">資本財</td><td class="number-right">36.0億円</td><td class="number-right">0.26</td><td class="number-right">0.83%</td><td class="number-right">109.2億円</td><td class="number-right">-5.2億円</td><td class="number-right">-0.4億円</td><td class="number-right">24.2%</td><td class="number-right">276.1%</td><td class="number-right">58.9%</td><td class="number-right">-4.8%</td><td class="number-right">-3.9%</td><td class="">⭐ 低</td><td class="">4</td><td class="">負債比率が低い / 流動比率が非常に高い / 配当利回りが高い</td><td class="">営業利益率が大幅マイナス / ROEがマイナス（収益力に懸念） / 営業CFがマイナス</td><td class="">慎重に検討</td></tr><tr class="rank-good"><td class="">8617.T</td><td class="number-right">483.00</td><td class="number-right">804.98</td><td class="number-right">1.67</td><td class="">💎 割安</td><td class="">✅ ネットネット株候補</td><td class="">金融</td><td class="number-right">45.6億円</td><td class="number-right">0.29</td><td class="number-right">1.02%</td><td class="number-right">5.6億円</td><td class="number-right">-5.2億円</td><td class="number-right">-16.9億円</td><td class="number-right">1.6%</td><td class="number-right">245.4%</td><td class="number-right">72.2%</td><td class="number-right">-93.3%</td><td class="number-right">-3.3%</td><td class="">⭐ 低</td><td class="">4</td><td class="">負債比率が非常に低い / 流動比率が高い / 配当利回りが高い</td><td class="">営業利益率が大幅マイナス / ROEがマイナス（収益力に懸念） / 営業CFがマイナス</td><td class="">慎重に検討</td></tr><tr class="rank-out"><td class="">3504.T</td><td class="number-right">-</td><td class="number-right">-</td><td class="number-right">-</td><td class="">データ取得失敗</td><td class="">データ取得失敗</td><td class="">-</td><td class="number-right">-</td><td class="number-right">-</td><td class="number-right">-</td><td class="number-right">-</td><td class="number-right">-</td><td class="number-right">-</td><td class="number-right">-</td><td class="number-right">-</td><td class="number-right">-</td><td class="number-right">-</td><td class="number-right">-</td><td class="">-</td><td class="">0</td><td class="">-</td><td class="">-</td><td class="">-</td></tr><tr class="rank-out"><td class="">5446.T</td><td class="number-right">1,246.00</td><td class="number-right">1,707.81</td><td class="number-right">1.37</td><td class="">対象外</td><td class="">対象外</td><td class="">素材</td><td class="number-right">48.0億円</td><td class="number-right">0.27</td><td class="number-right">0.64%</td><td class="number-right">287.3億円</td><td class="number-right">6.7億円</td><td class="number-right">16.2億円</td><td class="number-right">10.2%</td><td class="number-right">202.5%</td><td class="number-right">66.7%</td><td class="number-right">2.3%</td><td class="number-right">3.8%</td><td class="">-</td><td class="">0</td><td class="">-</td><td class="">-</td><td class="">-</td></tr><tr class="rank-out"><td class="">6425.T</td><td class="number-right">895.00</td><td class="number-right">458.31</td><td class="number-right">0.51</td><td class="">対象外</td><td class="">対象外</td><td class="">一般消費財</td><td class="number-right">693.5億円</td><td class="number-right">0.20</td><td class="number-right">6.20%</td><td class="number-right">1,263.3億円</td><td class="number-right">30.2億円</td><td class="number-right">15.2億円</td><td class="number-right">29.6%</td><td class="number-right">181.9%</td><td class="number-right">58.4%</td><td class="number-right">2.4%</td><td class="number-right">0.8%</td><td class="">-</td><td class="">0</td><td class="">-</td><td class="">-</td><td class="">-</td></tr><tr class="rank-out"><td class="">6619.T</td><td class="number-right">221.00</td><td class="number-right">-31.52</td><td class="number-right">-0.14</td><td class="">対象外</td><td class="">対象外</td><td class="">資本財</td><td class="number-right">121.4億円</td><td class="number-right">0.27</td><td class="number-right">-</td><td class="number-right">310.5億円</td><td class="number-right">-10.1億円</td><td class="number-right">40.1億円</td><td class="number-right">13.8%</td><td class="number-right">79.6%</td><td class="number-right">82.7%</td><td class="number-right">-3.2%</td><td class="number-right">-2.0%</td><td class="">-</td><td class="">0</td><td class="">-</td><td class="">-</td><td class="">-</td></tr><tr class="rank-out"><td class="">7916.T</td><td class="number-right">1,507.00</td><td class="number-right">1,630.88</td><td class="number-right">1.08</td><td class="">対象外</td><td class="">対象外</td><td class="">資本財</td><td class="number-right">46.2億円</td><td class="number-right">0.26</td><td class="number-right">3.38%</td><td class="number-right">147.6億円</td><td class="number-right">-1.6億円</td><td class="number-right">9.0億円</td><td class="number-right">12.8%</td><td class="number-right">192.8%</td><td class="number-right">63.4%</td><td class="number-right">-1.1%</td><td class="number-right">-0.9%</td><td class="">-</td><td class="">0</td><td class="">-</td><td class="">-</td><td class="">-</td></tr><tr class="rank-out"><td class="">8836.T</td><td class="number-right">35.00</td><td class="number-right">4.16</td><td class="number-right">0.12</td><td class="">対象外</td><td class="">対象外</td><td class="">不動産</td><td class="number-right">33.6億円</td><td class="number-right">2.04</td><td class="number-right">-</td><td class="number-right">3.8億円</td><td class="number-right">0.4億円</td><td class="number-right">0.6億円</td><td class="number-right">2.3%</td><td class="number-right">511.3%</td><td class="number-right">90.3%</td><td class="number-right">9.1%</td><td class="number-right">2.1%</td><td class="">-</td><td class="">0</td><td class="">-</td><td class="">-</td><td class="">-</td></tr><tr class="rank-out"><td class="">9036.T</td><td class="number-right">945.00</td><td class="number-right">788.22</td><td class="number-right">0.83</td><td class="">対象外</td><td class="">対象外</td><td class="">資本財</td><td class="number-right">52.8億円</td><td class="number-right">0.26</td><td class="number-right">1.61%</td><td class="number-right">103.7億円</td><td class="number-right">1.9億円</td><td class="number-right">7.4億円</td><td class="number-right">3.0%</td><td class="number-right">382.8%</td><td class="number-right">81.9%</td><td class="number-right">1.8%</td><td class="number-right">0.9%</td><td class="">-</td><td class="">0</td><td class="">-</td><td class="">-</td><td class="">-</td></tr>
+                </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>⚠️ このレポートは参考情報です。投資判断は自己責任で行ってください。</p>
+            
+            <div style="margin: 20px 0; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 10px; text-align: center;">
+                <h3 style="color: white; margin-bottom: 10px;">☕ このツールが役に立ちましたか？</h3>
+                <p style="color: white; margin-bottom: 15px;">開発者にコーヒー1杯（500円）の応援をお願いします！</p>
+                
+                <div style="margin: 20px 0;">
+                    <stripe-buy-button
+                      buy-button-id="buy_btn_1SIJhYJS4Urtp9ygzkKQB3op"
+                      publishable-key="pk_test_51SIIeYJS4Urtp9ygjLOBJEn103px8tcTZXuNiwawcqw4koSQ0rGk2oQ4H5w5O2rfUwIJgRx7gCZfBQpTtOpkHP5m00m3UTERwE"
+                    >
+                    </stripe-buy-button>
+                </div>
+                
+                <p style="color: white; margin: 10px 0; font-size: 14px;">
+                    💳 <strong>クレジットカードで簡単決済</strong><br>
+                    Stripe経由で安全にお支払いいただけます
+                </p>
+                
+                <p style="color: white; margin-top: 15px; font-size: 14px;">
+                    💡 投げ銭は開発の継続とツールの改善に使わせていただきます
+                </p>
+            </div>
+            
+            <script async src="https://js.stripe.com/v3/buy-button.js"></script>
+            
+            <p style="margin-top: 20px;">Powered by ネットネット株スクリーナー v2.0</p>
+        </div>
+    </div>
+    
+    <script>
+        // 投資ヒントの開閉機能
+        document.getElementById('investmentTips').addEventListener('click', function() {
+            this.classList.toggle('collapsed');
+        });
+        
+        // 指標の見方の開閉機能
+        document.getElementById('indicatorGuide').addEventListener('click', function() {
+            this.classList.toggle('collapsed');
+        });
+        
+        // 次のステップの開閉機能
+        document.getElementById('nextSteps').addEventListener('click', function() {
+            this.classList.toggle('collapsed');
+        });
+        
+        // テーブルソート機能
+        document.querySelectorAll('th').forEach((th, index) => {
+            th.addEventListener('click', () => {
+                const table = document.getElementById('resultTable');
+                const tbody = table.querySelector('tbody');
+                const rows = Array.from(tbody.querySelectorAll('tr'));
+                
+                const isAscending = th.classList.contains('asc');
+                
+                // すべてのヘッダーからソート状態をクリア
+                document.querySelectorAll('th').forEach(h => {
+                    h.classList.remove('asc', 'desc');
+                });
+                
+                // ソート
+                rows.sort((a, b) => {
+                    const aValue = a.children[index].textContent.trim();
+                    const bValue = b.children[index].textContent.trim();
+                    
+                    // 数値判定
+                    const aNum = parseFloat(aValue.replace(/,/g, ''));
+                    const bNum = parseFloat(bValue.replace(/,/g, ''));
+                    
+                    if (!isNaN(aNum) && !isNaN(bNum)) {
+                        return isAscending ? bNum - aNum : aNum - bNum;
+                    }
+                    
+                    // 文字列比較
+                    return isAscending ? 
+                        bValue.localeCompare(aValue, 'ja') : 
+                        aValue.localeCompare(bValue, 'ja');
+                });
+                
+                // テーブルに反映
+                rows.forEach(row => tbody.appendChild(row));
+                
+                // ソート状態を記録
+                th.classList.add(isAscending ? 'desc' : 'asc');
+            });
+        });
+    </script>
+</body>
+</html>

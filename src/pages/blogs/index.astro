@@ -1,0 +1,58 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { getCollection } from 'astro:content';
+
+const blogPosts = await getCollection('blogs');
+const sortedPosts = blogPosts.sort((a, b) => 
+  new Date(b.data.pubDate).getTime() - new Date(a.data.pubDate).getTime()
+);
+---
+
+<Layout title="ブログ - 雑記ブログ">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="text-center mb-12">
+      <h1 class="text-4xl font-bold text-gray-900 mb-4">📖 ブログ</h1>
+      <p class="text-xl text-gray-600">日々の学びや気づきを共有します</p>
+    </div>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      {sortedPosts.map((post) => (
+        <article class="card">
+          <div class="text-sm text-gray-500 mb-2">
+            📅 {post.data.pubDate instanceof Date ? post.data.pubDate.toLocaleDateString('ja-JP') : new Date(post.data.pubDate).toLocaleDateString('ja-JP')}
+          </div>
+          <h2 class="text-xl font-semibold mb-3 text-gray-900">
+            <a href={`/blog-monakit/blogs/${post.slug}`} class="hover:text-blue-600">
+              {post.data.title}
+            </a>
+          </h2>
+          <p class="text-gray-600 mb-4">{post.data.description}</p>
+          
+          <div class="flex items-center justify-between">
+            {post.data.category && (
+              <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">
+                {post.data.category}
+              </span>
+            )}
+            <a 
+              href={`/blog-monakit/blogs/${post.slug}`} 
+              class="text-blue-600 hover:text-blue-800 font-medium"
+            >
+              続きを読む →
+            </a>
+          </div>
+          
+          {post.data.tags && post.data.tags.length > 0 && (
+            <div class="flex flex-wrap gap-1 mt-3">
+              {post.data.tags.map(tag => (
+                <span class="bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs">
+                  #{tag}
+                </span>
+              ))}
+            </div>
+          )}
+        </article>
+      ))}
+    </div>
+  </div>
+</Layout>

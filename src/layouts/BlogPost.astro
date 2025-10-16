@@ -1,0 +1,85 @@
+---
+import Layout from './Layout.astro';
+import DonateButton from '../components/DonateButton.astro';
+
+export interface Props {
+  title: string;
+  description?: string;
+  pubDate?: Date;
+  category?: string;
+  tags?: string[];
+  author?: string;
+}
+
+const { title, description, pubDate, category, tags, author } = Astro.props;
+---
+
+<Layout title={`${title} - 雑記ブログ`} description={description}>
+  <article class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- 記事ヘッダー -->
+    <header class="mb-8">
+      <h1 class="text-3xl font-bold text-gray-900 mb-4">{title}</h1>
+      
+      <div class="flex flex-wrap items-center gap-4 text-sm text-gray-600 mb-4">
+        {pubDate && (
+          <time datetime={pubDate instanceof Date ? pubDate.toISOString() : new Date(pubDate).toISOString()}>
+            {pubDate instanceof Date ? pubDate.toLocaleDateString('ja-JP') : new Date(pubDate).toLocaleDateString('ja-JP')}
+          </time>
+        )}
+        {author && (
+          <span>{author}</span>
+        )}
+        {category && (
+          <span class={`category-badge ${
+            category === '投資' ? 'category-investment' :
+            category === '開発' ? 'category-development' :
+            category === 'ゲーム' ? 'category-gaming' :
+            'category-misc'
+          }`}>
+            {category}
+          </span>
+        )}
+      </div>
+      
+      {tags && tags.length > 0 && (
+        <div class="flex flex-wrap gap-2 mb-4">
+          {tags.map(tag => (
+            <span class="tag">
+              #{tag}
+            </span>
+          ))}
+        </div>
+      )}
+      
+      {description && (
+        <p class="text-lg text-gray-600 italic">{description}</p>
+      )}
+    </header>
+    
+    <!-- 記事本文 -->
+    <div class="prose prose-lg max-w-none">
+      <slot />
+    </div>
+    
+    <!-- Stripe投げ銭ボタン -->
+    <div class="mt-8">
+      <DonateButton />
+    </div>
+    
+    <!-- 記事フッター -->
+    <footer class="mt-8 pt-6 border-t border-gray-200">
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <p class="text-sm text-gray-600">
+            この記事が役に立ちましたか？
+          </p>
+        </div>
+        <div class="flex gap-4">
+          <a href="/blog-monakit/blogs" class="text-blue-600 hover:text-blue-800 font-medium">
+            ← 他の記事を見る
+          </a>
+        </div>
+      </div>
+    </footer>
+  </article>
+</Layout>

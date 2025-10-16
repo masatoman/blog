@@ -1,0 +1,18 @@
+---
+// Stripe投げ銭ボタンコンポーネント
+const stripePaymentLink = "https://buy.stripe.com/test_1234567890"; // 実際のStripe Payment Linkに置き換え
+---
+
+<div class="bg-gray-50 border border-gray-200 rounded-lg p-6 text-center">
+  <h3 class="text-lg font-semibold text-gray-900 mb-2">この記事が役に立ちましたか？</h3>
+  <p class="text-gray-600 mb-4">コーヒー1杯分の投げ銭で、より良いコンテンツの作成をサポートしてください！</p>
+  <a
+    href={stripePaymentLink}
+    target="_blank"
+    rel="noopener noreferrer"
+    class="inline-flex items-center px-6 py-3 bg-blue-600 text-white font-semibold rounded-md hover:bg-blue-700 transition-colors"
+  >
+    ☕️ 投げ銭する（500円）
+  </a>
+  <p class="text-sm text-gray-500 mt-2">Stripe経由で安全にお支払いいただけます</p>
+</div>
